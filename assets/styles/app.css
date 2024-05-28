@@ -1,0 +1,36 @@
+body {
+    background-color: #aab7cf;
+}
+
+.thead-fixed th {
+    position: sticky;
+    top: 0;
+    z-index: 2; /* S'assurer que l'en-tête reste au-dessus des autres éléments */
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4); /* Optionnel, ajoute une ombre pour une meilleure visibilité */
+}
+
+.scroll {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+
+.bottom-right-button {
+    position: absolute;  
+    bottom: 0px;        
+    right: 0px;       
+}
+
+.relative {
+    position: relative;  /* Relative positioning for the parent div */
+}
+
+.body{
+    margin-top:11vh;
+}
+
+.custom-navbar-height {
+    height: 10vh;
+    
+}

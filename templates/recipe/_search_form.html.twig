@@ -1,0 +1,90 @@
+{{ form_start(form, {'attr': {'id': 'myForm'}}) }}
+Filtrez les recettes par ingrédient! 
+<button type="submit" class="bottom-right-button"> Valider </button>
+<div  id="criterias" data-prototype="{{ form_widget(form.criterias.vars.prototype)|e('html_attr') }}">
+    {% for criteria in form.criterias %}
+            {{ form_row(criteria) }}
+    {% endfor %}
+    <span></span>
+    
+</div>
+{{ form_end(form) }}
+
+{% block javascripts %}
+<script>
+    let collection, boutonAjout, span, formulaire;
+    window.onload = () => {
+        collection = document.querySelector("#criterias");
+        span = collection.querySelector("span");
+        formulaire = document.querySelector("form");
+
+        boutonAjout = document.createElement("button");
+        boutonAjout.innerText = "Ajouter";
+        boutonAjout.type = "button";
+        span.appendChild(boutonAjout);
+
+        // Récupérez tous les divs déjà présents
+        let divs = collection.querySelectorAll("div");
+        divs.forEach((div, index) => {
+             div.style.height="50px"; 
+            ajouterBoutonSuppression(div, index);
+        });
+
+        collection.dataset.index = divs.length;
+
+        boutonAjout.addEventListener("click", () => {
+            ajouterNouvelElement();
+        });
+
+        // Ajout de l'écouteur d'événement pour la soumission du formulaire
+        formulaire.addEventListener("submit", (event) => {
+            if (!validerFormulaire()) {
+                // Ajoutez un champ caché pour indiquer que tous les critères doivent être affichés
+                let inputHidden = document.createElement("input");
+                inputHidden.type = "hidden";
+                inputHidden.name = "all_recipes";
+                inputHidden.value = "true";
+                formulaire.appendChild(inputHidden);
+            }
+        });
+    };
+
+    function ajouterBoutonSuppression(element, index) {
+        let boutonSuppr = document.createElement("button");
+        boutonSuppr.type = "button";
+        boutonSuppr.id = "delete-ingredient-" + index;
+        boutonSuppr.className = "btn red";
+        boutonSuppr.style.height = "100%";
+
+            // Créer l'image et l'ajouter au bouton
+        let img = document.createElement("img");
+        img.src = "{{ asset('pictures/effacer.png') }}"; // Remplacez par le chemin de votre image de suppression
+        img.alt = "Supprimer cet ingrédient";
+        img.style.height="100%";
+        boutonSuppr.appendChild(img);
+
+        boutonSuppr.addEventListener("click", () => {
+            element.remove();
+        });
+
+        element.appendChild(boutonSuppr);
+    }
+
+    function ajouterNouvelElement() {
+        let prototype = collection.dataset.prototype;
+        let index = collection.dataset.index;
+
+        prototype = prototype.replace(/__name__/g, index);
+
+        let newElement = document.createElement("div");
+        newElement.style.height="50px";
+        newElement.innerHTML = prototype;
+
+        ajouterBoutonSuppression(newElement, index);
+
+        span.insertBefore(newElement, boutonAjout);
+
+        collection.dataset.index++;
+    }
+</script>
+{% endblock %}

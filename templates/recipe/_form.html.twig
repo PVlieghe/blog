@@ -1,0 +1,159 @@
+{{ form_start(form) }}
+<div class="row">
+<div class = "col-4 pr-2"> 
+    {{ form_row(form.name) }}
+    {{ form_row(form.pic) }}
+</div>
+<div class = "col-4 px-2">
+    <div id="steps" data-prototype="{{ form_row(form.steps.vars.prototype)|e('html_attr') }}">
+        {{ form_row(form.steps) }}
+        <span> </span>
+    </div>
+</div>
+<div class = "col-4 pl-2">
+        <div id="ingredients" data-prototype="{{ form_row(form.ingredients.vars.prototype)|e('html_attr') }}">
+        {{ form_row(form.ingredients) }}
+        <span> </span>
+    </div></div>
+</div>
+
+    {{ form_row(form.valider) }}
+{{ form_end(form) }}
+
+{% block javascripts %} 
+    <script>
+        let collection, boutonAjout, span, ingCollection, ingBoutonAjout, ingSpan;
+        window.onload = () => {
+            collection = document.querySelector("#steps");
+            span = collection.querySelector("span");
+
+            boutonAjout = document.createElement("button");
+            boutonAjout.innerText = "Ajouter une étape";
+            boutonAjout.type = "button";
+            let nouveauBouton = span.append(boutonAjout);
+
+            // Récupérez tous les inputs déjà présents
+            let inputs = collection.querySelectorAll("input");
+            inputs.forEach(function(input, index) {
+                // Créez un bouton de suppression pour chaque input
+                let boutonSuppr = document.createElement("button");
+                boutonSuppr.type = "button";
+                boutonSuppr.innerText = "Supprimer cette étape";
+                boutonSuppr.id = "delete-step-" + index;
+                boutonSuppr.className = "btn red";
+            
+                // Ajoutez l'écouteur d'événements pour supprimer l'étape
+                boutonSuppr.addEventListener("click", function(){
+                    this.parentElement.remove();
+                });
+
+            // Ajoutez le bouton de suppression à côté de l'input
+            input.parentNode.appendChild(boutonSuppr);
+            });
+
+            collection.dataset.index = collection.querySelectorAll("input").length;
+
+            boutonAjout.addEventListener("click", function(){
+                addButton(collection, nouveauBouton);
+            });
+
+            
+
+            ingCollection = document.querySelector("#ingredients");
+            ingSpan = ingCollection.querySelector("span");
+
+            ingBoutonAjout = document.createElement("button");
+            ingBoutonAjout.innerText = "Ajouter un ingrédient";
+            ingBoutonAjout.type = "button";
+            let ingNouveauBouton = ingSpan.append(ingBoutonAjout);
+
+            // Récupérez tous les inputs déjà présents
+            let ingInputs = ingCollection.querySelectorAll("input");
+            ingInputs.forEach(function(ingInput, ingIndex) {
+                // Créez un bouton de suppression pour chaque input
+                let ingBoutonSuppr = document.createElement("button");
+                ingBoutonSuppr.type = "button";
+                ingBoutonSuppr.innerText = "Supprimer cet ingrédient";
+                ingBoutonSuppr.id = "delete-ingredient-" + ingIndex;
+                ingBoutonSuppr.className = "btn red";
+            
+                // Ajoutez l'écouteur d'événements pour supprimer l'étape
+                ingBoutonSuppr.addEventListener("click", function(){
+                    this.parentElement.remove();
+                });
+
+            // Ajoutez le bouton de suppression à côté de l'input
+            ingInput.parentNode.appendChild(ingBoutonSuppr);
+            });
+
+            ingCollection.dataset.index = ingCollection.querySelectorAll("input").length;
+
+            ingBoutonAjout.addEventListener("click", function(){
+                ingAddButton(ingCollection, ingNouveauBouton);
+            });
+        }
+        
+
+        function addButton(collection, nouveauBouton){
+            let prototype = collection.dataset.prototype;
+
+            let index = collection.dataset.index;
+
+            prototype = prototype.replace(/__name__/g, index);
+
+            let content = document.createElement("html");
+            content.innerHTML = prototype;
+            let newForm = content.querySelector("div");
+
+            let boutonSuppr = document.createElement("button");
+            boutonSuppr.type = "button";
+            boutonSuppr.innerText = "Supprimer cette étape";
+            boutonSuppr.id = "delete-step-" + index;
+            boutonSuppr.className = "btn red";
+
+            newForm.append(boutonSuppr);
+
+            collection.dataset.index++
+            
+
+            span.insertBefore(newForm, boutonAjout);
+           ;
+            boutonSuppr.addEventListener("click", function(){
+                this.previousElementSibling.parentElement.remove();
+            })
+
+        }
+
+        function ingAddButton(ingCollection, ingNouveauBouton){
+            let ingPrototype = ingCollection.dataset.prototype;
+
+            let index = ingCollection.dataset.index;
+
+            ingPrototype = ingPrototype.replace(/__name__/g, index);
+
+            let ingContent = document.createElement("html");
+            ingContent.innerHTML = ingPrototype;
+            let ingNewForm = ingContent.querySelector("div");
+
+            let ingBoutonSuppr = document.createElement("button");
+            ingBoutonSuppr.type = "button";
+            ingBoutonSuppr.innerText = "Supprimer cet ingrédient";
+            ingBoutonSuppr.id = "delete-ingredient-" + index;
+            ingBoutonSuppr.className = "btn red";
+
+            ingNewForm.append(ingBoutonSuppr);
+
+            ingCollection.dataset.index++
+            
+
+            ingSpan.insertBefore(ingNewForm, ingBoutonAjout);
+           ;
+            ingBoutonSuppr.addEventListener("click", function(){
+                this.previousElementSibling.parentElement.remove();
+            })
+
+        }
+    </script>
+{% endblock %}
+
+

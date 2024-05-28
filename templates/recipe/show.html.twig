@@ -1,0 +1,155 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recipe{% endblock %}
+
+{% block body %}
+    <h1>{{ recipe.name }}</h1>
+
+    {% if recipe.pic is not null %}
+        <img src="{{ asset('pictures/' ~ recipe.pic) }}" alt="Image de la recette">
+    {% endif %}
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ recipe.id }}</td>
+            </tr>
+            <tr>
+                <th>Steps</th>
+                <td>{% for step in steps %}
+                        - {{ step.content }}<br>
+                    {% endfor %}</td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_recipe_index') }}">back to list</a>
+
+    {% if app.user.email == recipe.user.email %}
+        <a href="{{ path('app_recipe_edit', {'id': recipe.id}) }}">edit</a>
+    {% endif %}
+
+{{ form_start(formLike) }}
+
+    <div style="color:green;">
+        {{ form_row(formLike.submit) }} 
+        {% if like %}
+            Vous aimez déjà cette recette! Cliquez pour annuler.
+        {% endif %}
+    </div>
+{{ form_end(formLike) }}
+
+
+
+{{ form_start(formFavo) }}
+
+    <div style="color:green;">
+        {{ form_row(formFavo.submit) }} 
+        {% if favorite %}
+            Cette recette est déja dans vos favoris! Cliquez pour annuler.
+        {% endif %}
+    </div>
+{{ form_end(formFavo) }}
+{% if not comment %}
+    {{ form_start(formComment) }}
+    {{ form_row(formComment.Content) }} 
+    {{ form_row(formComment.rate) }} 
+    {{ form_row(formComment.submit) }} 
+    {{ form_end(formComment)}}
+{% endif %}
+{% if app.user.email == recipe.user.email %}
+    {{ include('recipe/_delete_form.html.twig') }}
+{% endif %}
+
+<!-- Formulaire pour modifier le nombre de personnes -->
+<form id="person-form">
+    <label for="person-count">Nombre de personnes :</label>
+    <input type="number" id="person-count" min="1" value="2">
+    <button type="submit">Mettre à jour</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ingrédient</th>
+            <th>Quantité</th>
+        </tr>
+    </thead>
+    <tbody id="ingredient-list">
+        {% for ingredient in ingredients %}
+            <tr>
+                <td>{{ ingredient.food.name }}</td>
+                <td>{{ ingredient.quantity }} {{ ingredient.food.unit }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Utilisateur</th>
+            <th>Note</th>
+            <th>Commentaire</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for comment in comments %}
+            <tr>
+                <td>{{ comment.user.username }}</td>
+                <td>{{ comment.rate }}/5</td>
+                <td>{{ comment.content }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+<script>
+    // Récupération du formulaire et du tableau des ingrédients
+    const form = document.getElementById('person-form');
+    const ingredientList = document.getElementById('ingredient-list');
+
+    // Valeur initiale du nombre de personnes
+    let initialPersonCount = 2;
+
+    // Écouteur d'événement pour le formulaire
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        // Récupérer la nouvelle valeur du nombre de personnes
+        const newPersonCount = parseInt(document.getElementById('person-count').value);
+        // Mettre à jour les quantités des ingrédients dans le tableau
+        updateIngredientQuantities(newPersonCount);
+    });
+
+    // Fonction pour mettre à jour les quantités des ingrédients
+    function updateIngredientQuantities(newPersonCount) {
+        // Parcourir chaque ligne du tableau d'ingrédients
+        const rows = ingredientList.getElementsByTagName('tr');
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            // Récupérer la quantité de l'ingrédient
+            const quantityText = cells[1].textContent.split(' ');
+            const quantity = parseFloat(quantityText[0]);
+            const unit = quantityText.slice(1).join(' '); // Récupérer l'unité de mesure
+            // Mettre à jour la quantité en fonction du nouveau nombre de personnes
+            let newQuantity = (quantity / initialPersonCount) * newPersonCount;
+            // Si la quantité est un nombre entier, ne pas afficher les décimales
+            if (Number.isInteger(newQuantity)) {
+                newQuantity = parseInt(newQuantity);
+            }
+            // Mettre à jour la cellule de quantité
+            cells[1].textContent = `${newQuantity} ${unit}`;
+        }
+        // Mettre à jour la valeur initiale du nombre de personnes
+        initialPersonCount = newPersonCount;
+    }
+</script>
+{% endblock %}
