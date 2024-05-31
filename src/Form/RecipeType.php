@@ -26,22 +26,30 @@ class RecipeType extends AbstractType
             'entry_options' => [
                 'label' => false, // Entité associée à la collection d'étapes
             ],
-            'label' => 'Etapes de la recette',
+            'label' => '<i class="bi bi-pencil"></i> Etapes de la recette ', // Ajoutez l'icône au label
+            'label_html' => true, // Indique que le label contient du HTML
             'allow_add' => true, // Permettre à l'utilisateur d'ajouter de nouveaux éléments
             'allow_delete' => true, // Permettre à l'utilisateur de supprimer des éléments existants
         ])
-        ->add('name')
+        ->add('name', TextType::class, [
+            'attr' => ['class' => 'form-control custom-form-control'], // Ajout de la classe Bootstrap
+            'label' => '<i class="bi bi-card-text"></i> Nom ', // Ajoutez l'icône au label
+            'label_html' => true, // Indique que le label contient du HTML
+        ])
         ->add('ingredients', CollectionType::class, [
             'entry_type' => IngredientType::class,
             'entry_options' => [
                 'label' => false,
             ],
-            'label' => 'Ingrédients de la recette',
+            'label' => '<i class="bi bi-cart-check"></i> Ingrédients', // Ajoutez l'icône au label
+            'label_html' => true, // Indique que le label contient du HTML
             'allow_add' =>true,
             'allow_delete' => true,
         ])
         ->add('pic', FileType::class, [
-            'label' => 'Image de la recette (facultatif)',
+            'attr' => ['class' => 'form-control form-control custom-file-control'],
+            'label' => '<i class="bi bi-image"></i> Image png ou jpg (facultatif) ', // Ajoutez l'icône au label
+            'label_html' => true, // Indique que le label contient du HTML
             'required' => false
         ])
         ->add('valider', SubmitType::class)

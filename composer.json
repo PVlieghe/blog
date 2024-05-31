@@ -14,6 +14,7 @@
         "symfony/framework-bundle": "7.0.*",
         "symfony/runtime": "7.0.*",
         "symfony/security-bundle": "7.0.*",
+        "symfony/validator": "7.0.*",
         "symfony/webapp-pack": "*",
         "symfony/yaml": "7.0.*",
         "symfonycasts/verify-email-bundle": "*"

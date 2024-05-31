@@ -17,10 +17,17 @@ class IngredientType extends AbstractType
             ->add('food', EntityType::class, [
                 'class' => Food::class,
                 'choice_label' => 'name',
+                'label' => 'Aliment',
+                'row_attr' => ['class' => 'col-6'],
+                'attr' => ['class' => 'form-control custom-form-control'] 
             ]);
 
             if (!$options['exclude_quantity']) {
-                $builder->add('quantity');
+                $builder->add('quantity', null, [
+                    'row_attr' => ['class' => 'col-3'],
+                    'attr' => ['class' => 'form-control custom-form-control'],
+                    'label' =>'Quantité'
+                ]);
             }
         ;
     }
@@ -30,6 +37,7 @@ class IngredientType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Ingredient::class,
             'exclude_quantity' => false, 
+            
         ]);
     }
 }

@@ -1,24 +1,61 @@
-{{ form_start(form) }}
-<div class="row">
-<div class = "col-4 pr-2"> 
-    {{ form_row(form.name) }}
-    {{ form_row(form.pic) }}
-</div>
-<div class = "col-4 px-2">
-    <div id="steps" data-prototype="{{ form_row(form.steps.vars.prototype)|e('html_attr') }}">
-        {{ form_row(form.steps) }}
-        <span> </span>
+<style>
+div[id^="recipe_steps_"] {
+    display : inline-flex;
+    justify-content: space-between;
+}
+
+div[id^="recipe_ingredients_"] {
+    display : inline-flex;
+    justify-content: space-between;
+}
+
+label {
+            color: black; /* Définit la couleur du texte des labels en noir */
+            font-weight: 600
+        }
+
+</style>
+
+
+
+{{ form_start(form)}}
+    
+<div class="container">
+        <!-- Première ligne avec deux colonnes de taille égale -->
+        <div class="row  bg-form border border-primary border-1 p-2 rounded mb-4">
+            <div class="col-6 col-auto">
+                {{ form_row(form.name) }}
+            </div>
+            <div class="col-6 ">
+                {{ form_row(form.pic) }}
+            </div>
+        </div>
+
+        <!-- Deuxième ligne avec une seule colonne prenant toute la largeur -->
+        <div class="row  align-items-start" style="justify-content: space-between">
+            <div class= "col-6 bg-form col-auto border border-primary border-1 p-2  rounded">
+                <div id="steps" data-prototype="{{ form_row(form.steps.vars.prototype)|e('html_attr') }}">
+                    <center><div class="mb-4 align-items-center">{{ form_label(form.steps)}}</div></center>
+                    <span></span>
+                </div>
+            </div>
+            <div class="col-5  bg-form col-auto border border-primary border-1 p-2  rounded">
+                <div id="ingredients" data-prototype="{{ form_row(form.ingredients.vars.prototype)|e('html_attr') }}">
+                    <center><div class="mb-3 align-items-center">{{ form_label(form.ingredients)}}</div></center>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+
+        <!-- Troisième ligne avec une seule colonne prenant toute la largeur -->
+
     </div>
-</div>
-<div class = "col-4 pl-2">
-        <div id="ingredients" data-prototype="{{ form_row(form.ingredients.vars.prototype)|e('html_attr') }}">
-        {{ form_row(form.ingredients) }}
-        <span> </span>
-    </div></div>
-</div>
 
     {{ form_row(form.valider) }}
-{{ form_end(form) }}
+
+    {{ form_end(form)}}
+
 
 {% block javascripts %} 
     <script>
@@ -28,7 +65,11 @@
             span = collection.querySelector("span");
 
             boutonAjout = document.createElement("button");
-            boutonAjout.innerText = "Ajouter une étape";
+            let plus = document.createElement("i");
+            boutonAjout.className="btn custom-btn-outline-success rounded mt-2";
+            plus.className="bi bi-plus-circle-fill icon-size"
+            boutonAjout.appendChild(plus);
+            span.appendChild(boutonAjout);
             boutonAjout.type = "button";
             let nouveauBouton = span.append(boutonAjout);
 
@@ -40,7 +81,7 @@
                 boutonSuppr.type = "button";
                 boutonSuppr.innerText = "Supprimer cette étape";
                 boutonSuppr.id = "delete-step-" + index;
-                boutonSuppr.className = "btn red";
+                boutonSuppr.className = "btn btn-warning";
             
                 // Ajoutez l'écouteur d'événements pour supprimer l'étape
                 boutonSuppr.addEventListener("click", function(){
@@ -63,9 +104,14 @@
             ingSpan = ingCollection.querySelector("span");
 
             ingBoutonAjout = document.createElement("button");
-            ingBoutonAjout.innerText = "Ajouter un ingrédient";
+            let ingPlus = document.createElement("i");
+            ingBoutonAjout.className="btn custom-btn-outline-success rounded mt-2";
+            ingPlus.className="bi bi-plus-circle-fill icon-size"
+            ingBoutonAjout.appendChild(ingPlus);
+            ingSpan.appendChild(ingBoutonAjout);
             ingBoutonAjout.type = "button";
             let ingNouveauBouton = ingSpan.append(ingBoutonAjout);
+
 
             // Récupérez tous les inputs déjà présents
             let ingInputs = ingCollection.querySelectorAll("input");
@@ -75,7 +121,7 @@
                 ingBoutonSuppr.type = "button";
                 ingBoutonSuppr.innerText = "Supprimer cet ingrédient";
                 ingBoutonSuppr.id = "delete-ingredient-" + ingIndex;
-                ingBoutonSuppr.className = "btn red";
+                ingBoutonSuppr.className = "btn btn-danger";
             
                 // Ajoutez l'écouteur d'événements pour supprimer l'étape
                 ingBoutonSuppr.addEventListener("click", function(){
@@ -104,22 +150,32 @@
             let content = document.createElement("html");
             content.innerHTML = prototype;
             let newForm = content.querySelector("div");
-
+        
+            newForm.classList.add("row");
+            let divSuppr = document.createElement("div");
+            divSuppr.className="col-1 centered";
+            
             let boutonSuppr = document.createElement("button");
             boutonSuppr.type = "button";
-            boutonSuppr.innerText = "Supprimer cette étape";
             boutonSuppr.id = "delete-step-" + index;
-            boutonSuppr.className = "btn red";
+            boutonSuppr.className = "btn custom-btn-outline-danger bouton-suppr-form ";
+            let icon = document.createElement("i");
+            icon.className = "bi bi-trash icon-size";
+            
+            divSuppr.appendChild(boutonSuppr);
+            
+        
 
-            newForm.append(boutonSuppr);
-
-            collection.dataset.index++
             
 
             span.insertBefore(newForm, boutonAjout);
-           ;
+            let targetDiv = document.getElementById("recipe_steps_" + index);
+            targetDiv.appendChild(divSuppr);
+            boutonSuppr.appendChild(icon);
+            collection.dataset.index++
+            
             boutonSuppr.addEventListener("click", function(){
-                this.previousElementSibling.parentElement.remove();
+                this.closest('.row').remove();
             })
 
         }
@@ -134,22 +190,26 @@
             let ingContent = document.createElement("html");
             ingContent.innerHTML = ingPrototype;
             let ingNewForm = ingContent.querySelector("div");
+            ingNewForm.classList.add("row");
 
             let ingBoutonSuppr = document.createElement("button");
             ingBoutonSuppr.type = "button";
-            ingBoutonSuppr.innerText = "Supprimer cet ingrédient";
             ingBoutonSuppr.id = "delete-ingredient-" + index;
-            ingBoutonSuppr.className = "btn red";
-
-            ingNewForm.append(ingBoutonSuppr);
-
+            ingBoutonSuppr.className = "btn custom-btn-outline-danger bouton-suppr-form ";
+            let divSuppr = document.createElement("div");
+            divSuppr.className="col-1 centered";
+            let icon = document.createElement("i");
+            icon.className = "bi bi-trash icon-size";
+            divSuppr.appendChild(ingBoutonSuppr);
+            ingSpan.insertBefore(ingNewForm, ingBoutonAjout);
+            let targetDiv = document.getElementById("recipe_ingredients_" + index);
+            targetDiv.appendChild(divSuppr);
+            ingBoutonSuppr.appendChild(icon);
             ingCollection.dataset.index++
             
-
-            ingSpan.insertBefore(ingNewForm, ingBoutonAjout);
            ;
             ingBoutonSuppr.addEventListener("click", function(){
-                this.previousElementSibling.parentElement.remove();
+                 this.closest('.row').remove();
             })
 
         }

@@ -7,14 +7,21 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class StepType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('content', TextType::class)
-            ->add('number')
+            ->add('number' , IntegerType::class, [
+                'row_attr' => ['class' => 'col-2'],
+                'attr' => ['class' => 'form-control custom-form-control'] 
+            ])
+            ->add('content', TextType::class, [
+                'row_attr' => ['class' => 'col-8'],
+                'attr' => ['class' => 'form-control custom-form-control']
+            ])
         ;
     }
 
@@ -25,3 +32,4 @@ class StepType extends AbstractType
         ]);
     }
 }
+

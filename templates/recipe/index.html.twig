@@ -4,115 +4,107 @@
 
 {% block body %}
 <div class="body">
-        <div class="row">
-            <div class="col-3 p-3 ">  
-                <form id="sort-form" class="mb-5 ml-auto bg-secondary">
-                    
-                    <div class="form-group">
-                        <label for="sort">Trier par:</label>
-                        <select id="sort" name="sort" class="form w-100">
-                            <option value="date">Date d'ajout</option>
-                            <option value="likes">Nombre de likes</option>
-                            <option value="rating">Note moyenne</option>
-                        </select>
-                    </div>
-                    </form>
-                <div class="scroll bg-secondary relative mb-5" style="max-height: 50vh;">
-                        {{ include('recipe/_search_form.html.twig') }}
+    <div class="row">
+        <div id="leftBar" class="col-3 p-3">  
+            <form id="sort-form" class="mb-5 ml-auto bg-secondary p-2 border border-primary border-2 rounded">
+                <div class="form-group">
+                    <label for="sort">Trier par:</label>
+                    <select id="sort" name="sort" class="form w-100">
+                        <option value="date">Date d'ajout</option>
+                        <option value="likes">Nombre de likes</option>
+                        <option value="rating">Note moyenne</option>
+                    </select>
                 </div>
-                  
-                <a class="btn btn-primary" href="{{ path('app_recipe_new') }}">Créer une nouvelle recette !</a>  
+            </form>
+            <div id="filter" class= "scroll bg-secondary relative mb-5 p-2 border border-primary border-2 rounded">
+                {{ include('recipe/_search_form.html.twig') }}
             </div>
-            <div class="col-8 p-3 align-items-center">
-                <div class="table scroll" style="max-height: 80vh;">
-                    <table id="recipe-table" class="table table-striped">
-                        <thead class="thead-fixed bg-dark">
-                            <tr>
-                                <th>Date d'ajout</th>
-                                <th>Nombre d'étapes</th>
-                                <th>Name</th>
-                                <th>Créateur</th>
-                                <th>Nombre de like</th>
-                                <th>Note moyenne</th>
-                                <th>actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for recipe in recipes %}
-                            <tr data-id="{{ recipe.id }}" data-likes="{{ recipe.likes|length }}" data-rating="{{ averageRatings[recipe.id]|default(0) }}" data-date="{{ recipe.createdAt|date('Y-m-d H:i:s') }}">
-                                <td>{{ recipe.createdAt|date('d-m-Y') }}</td>
-                                <td>{{ recipe.steps|length }}</td>
-                                <td>{{ recipe.name }}</td>
-                                <td>{{ recipe.user.username }}</td>
-                                <td>{{ recipe.likes|length }}</td>
-                                <td>
-                                    {% set averageRating = averageRatings[recipe.id] %}
-                                    {% if averageRating is not null %}
-                                        {{ averageRating }}/5
-                                    {% else %}
-                                        Aucune note disponible
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{{ path('app_recipe_show', {'id': recipe.id}) }}">show</a>
-                                    {% if app.user.email == recipe.user.email %}
-                                        <a href="{{ path('app_recipe_edit', {'id': recipe.id}) }}">edit</a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="7">Pas de recette trouvée!</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+            <a class="btn btn-primary" href="{{ path('app_recipe_new') }}">Créer une nouvelle recette !</a>  
+        </div>
+        <div class="col-3"></div>
+
+
+        <div class="col-8 p-3 align-items-center ">
+            <div id="recipe-container" class="border border-primary border-2 rounded bg-light">
+                {% for recipe in recipes %}
+                    <div id="index" class="row recipe" style="max-height:35vh" data-id="{{ recipe.id }}" data-likes="{{ recipe.likes|length }}" data-rating="{{ averageRatings[recipe.id]|default(0) }}" data-date="{{ recipe.createdAt|date('Y-m-d H:i:s') }}">
+                        <div class="col-3 image-container" >
+                            <img class="img-fluid" src="{{ asset('pictures/' ~ recipe.pic) }}" alt="Image de la recette">
+                        </div>
+                        <div class="col-4">
+                            <p>Date d'ajout : {{ recipe.createdAt|date('d-m-Y') }}</p>
+                            <p>Nombre d'étapes : {{ recipe.steps|length }}</p>
+                            <p>Nom : {{ recipe.name }}</p>
+                            <p>Créateur : {{ recipe.user.username }}</p>
+
+                        </div>
+                        <div class="col-5">
+                            <p>Nombre de like : {{ recipe.likes|length }}</p>
+                            <p>
+                                {% set averageRating = averageRatings[recipe.id] %}
+                                {% if averageRating is not null %}
+                                    Note moyenne : {{ averageRating }}/5
+                                {% else %}
+                                    Aucune note disponible
+                                {% endif %}
+                            </p>
+                            <div class="recipe-buttons">
+                                <a href="{{ path('app_recipe_show', {'id': recipe.id}) }}" class="btn btn-primary">Afficher</a>
+                                {% if app.user.email == recipe.user.email %}
+                                    <a href="{{ path('app_recipe_edit', {'id': recipe.id}) }}" class="btn btn-success">Modifier</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                <div class="row">
+                    <div class="col">Pas de recette trouvée!</div>
+                </div>
+                {% endfor %}      
                 </div>
             </div>
         </div>
     </div>
     
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const sortSelect = document.getElementById('sort');
-    const recipeTable = document.getElementById('recipe-table');
-    const tbody = recipeTable.querySelector('tbody');
+     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sortSelect = document.getElementById('sort');
+            const recipeContainer = document.getElementById('recipe-container');
 
-    sortSelect.addEventListener('change', () => {
-        const sortValue = sortSelect.value;
-        const rows = Array.from(tbody.querySelectorAll('tr'));
+            sortSelect.addEventListener('change', () => {
+                const sortValue = sortSelect.value;
+                const recipes = Array.from(recipeContainer.querySelectorAll('.recipe'));
 
-        rows.sort((a, b) => {
-            let aValue, bValue;
-            
-            switch (sortValue) {
-                case 'likes':
-                    aValue = parseInt(a.dataset.likes);
-                    bValue = parseInt(b.dataset.likes);
-                    return bValue - aValue;
-                case 'rating':
-                    aValue = parseFloat(a.dataset.rating);
-                    bValue = parseFloat(b.dataset.rating);
-                    return bValue - aValue;
-                case 'date':
-                default:
-                    aValue = new Date(a.dataset.date);
-                    bValue = new Date(b.dataset.date);
-                    return bValue - aValue;
-            }
+                recipes.sort((a, b) => {
+                    let aValue, bValue;
+                    
+                    switch (sortValue) {
+                        case 'likes':
+                            aValue = parseInt(a.dataset.likes);
+                            bValue = parseInt(b.dataset.likes);
+                            return bValue - aValue;
+                        case 'rating':
+                            aValue = parseFloat(a.dataset.rating);
+                            bValue = parseFloat(b.dataset.rating);
+                            return bValue - aValue;
+                        case 'date':
+                        default:
+                            aValue = new Date(a.dataset.date);
+                            bValue = new Date(b.dataset.date);
+                            return bValue - aValue;
+                    }
+                });
+
+                // Clear existing recipes
+                while (recipeContainer.firstChild) {
+                    recipeContainer.removeChild(recipeContainer.firstChild);
+                }
+
+                // Append sorted recipes
+                recipes.forEach(recipe => recipeContainer.appendChild(recipe));
+            });
         });
-
-        // Clear existing rows
-        while (tbody.firstChild) {
-            tbody.removeChild(tbody.firstChild);
-        }
-
-        // Append sorted rows
-        rows.forEach(row => tbody.appendChild(row));
-    });
-});
-
     </script>
 
 

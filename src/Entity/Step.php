@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\StepRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: StepRepository::class)]
 class Step
@@ -13,10 +14,13 @@ class Step
     #[ORM\Column]
     private ?int $id = null;
 
+
+    #[Assert\NotBlank(message: "Vous devez écrire l'étape à suivre, sinon supprimez-la")]
     #[ORM\Column(length: 500)]
     private ?string $content = null;
 
     #[ORM\Column]
+    #[Assert\Positive(message:"Les numéros d'ordre doivent être positifs.")]
     private ?int $number = null;
 
     #[ORM\ManyToOne(inversedBy: 'steps')]

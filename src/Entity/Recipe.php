@@ -2,11 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\RecipeRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+
+use App\Repository\RecipeRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RecipeRepository::class)]
 class Recipe
@@ -21,6 +23,8 @@ class Recipe
     private ?User $user = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Vous devez donner un nom à votre recette.")]
+    #[Assert\Length(min: 3, minMessage: "Le nom de votre recette doit au moins faire 3 caractères.")]
     private ?string $name = null;
 
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'Recipe', orphanRemoval: true)]
@@ -33,6 +37,7 @@ class Recipe
     private Collection $favorites;
 
     #[ORM\OneToMany(targetEntity: Step::class, mappedBy: 'Recipe', orphanRemoval: true, cascade:['persist', 'remove'] )]
+
     private Collection $steps;
 
     #[ORM\OneToMany(targetEntity: Ingredient::class, mappedBy: 'Recipe', orphanRemoval: true, cascade:['persist', 'remove'])]
