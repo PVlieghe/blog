@@ -3,9 +3,15 @@
 {% block title %}New User{% endblock %}
 
 {% block body %}
-    <h1>Create new User</h1>
+<div class="body">
+    <div class="container mt-5">
+        <div class="card custom-card bg-white rounded p-4 border border-primary border-2">
+            <h1>Create new User</h1>
 
-    {{ include('user/_form.html.twig') }}
+            {{ include('user/_form.html.twig') }}
+        </div>
+    </div>
+</div>
 
 
 {% endblock %}

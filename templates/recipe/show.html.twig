@@ -1,114 +1,149 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Recipe{% endblock %}
+{% block title %}{{recipe.name}}{% endblock %}
 
 {% block body %}
-    <h1>{{ recipe.name }}</h1>
 
-    {% if recipe.pic is not null %}
-        <img src="{{ asset('pictures/' ~ recipe.pic) }}" alt="Image de la recette">
-    {% endif %}
+<div class="body">
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ recipe.id }}</td>
-            </tr>
-            <tr>
-                <th>Steps</th>
-                <td>{% for step in steps %}
-                        - {{ step.content }}<br>
-                    {% endfor %}</td>
-            </tr>
-            <tr>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="row">
+        <div id="leftBar" class="col-3 p-3">
+            
+            <div id ="rowPic" class="row m-2">
+                {% if recipe.pic is not null %}
+                    <img src="{{ asset('pictures/' ~ recipe.pic) }}" alt="Image de la recette">
+                {% endif %}
+            </div>
+            <div class="row bg-white m-2 p-2 border border-primary border-2 rounded centered">
+                <div class="col-5">
+                    {{ form_start(formLike) }}
 
-    <a href="{{ path('app_recipe_index') }}">back to list</a>
 
-    {% if app.user.email == recipe.user.email %}
-        <a href="{{ path('app_recipe_edit', {'id': recipe.id}) }}">edit</a>
-    {% endif %}
+                            {{ form_row(formLike.submit) }} 
+                            {% if like %}
+                                <i class="bi bi-check-circle"></i>
+                            {% endif %}
+                       
+                    {{ form_end(formLike) }}
+                </div>
+                <div class="col-5">
+                    {{ form_start(formFavo) }}
+                        <div style="color:green;">
+                        {{ form_row(formFavo.submit) }} 
+                                {% if favorite %}
+                                    Cette recette est déja dans vos favoris! Cliquez pour annuler.
+                                {% endif %}
+                        </div>
+                    {{ form_end(formFavo) }}
+                </div>
+            </div>
 
-{{ form_start(formLike) }}
+            {% if not comment %}
+                {{ form_start(formComment) }}
+                {{ form_row(formComment.Content) }} 
+                {{ form_row(formComment.rate) }} 
+                {{ form_row(formComment.submit) }} 
+                {{ form_end(formComment)}}
+            {% endif %}
 
-    <div style="color:green;">
-        {{ form_row(formLike.submit) }} 
-        {% if like %}
-            Vous aimez déjà cette recette! Cliquez pour annuler.
-        {% endif %}
+        </div>
+        <div class="col-3"></div>
+        <div class="col-8">
+            <div class="row rounded bg-white p-2 m-2 border border-primary border-2">
+                <div class="col-8">
+                    <h1>{{ recipe.name }}</h1>
+                </div>
+                <div class="col-1"></div>
+                <div class="col-3">
+                <div id="btnGroup" class="btn-group rounded">
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ path('app_recipe_index') }}'">
+                        <i class="bi bi-arrow-left-square"></i>
+                    </button>
+                    {% if app.user.email == recipe.user.email %}
+                    <button type="button" class="btn btn-outline-success" onclick="window.location.href='{{  path('app_recipe_edit', {'id': recipe.id}) }}'">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    {% endif %}
+                    {% if app.user.email == recipe.user.email %}
+                        {{ include('recipe/_delete_form.html.twig') }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row m-2 ">
+            <div class="col-7  rounded bg-white  border border-primary border-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Etapes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       {% for step in steps %}
+                            <tr>
+                                <td>{{ loop.index }}</td> {# Index starts from 1 #}
+                                <td>{{ step.content }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div> 
+            <div class="col-1"> </div>
+            <div class="col-4 rounded bg-white  border border-primary border-2">
+                <form id="person-form">
+                    <label for="person-count">Nombre de personnes :</label>
+                    <input type="number" id="person-count" min="1" value="2">
+                    <button type="submit">Mettre à jour</button>
+                </form>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Ingrédient</th>
+                            <th>Quantité</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ingredient-list">
+                        {% for ingredient in ingredients %}
+                            <tr>
+                                <td>{{ ingredient.food.name }}</td>
+                                <td>{{ ingredient.quantity }} {{ ingredient.food.unit }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    
+            
+        <div class="row bg-white m-2 p-2 border border-primary border-2 rounded centered">
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Note</th>
+                        <th>Commentaire</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comment in comments %}
+                        <tr>
+                            <td>{{ comment.user.username }}</td>
+                            <td>{{ comment.rate }}/5</td>
+                            <td>{{ comment.content }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>          
     </div>
-{{ form_end(formLike) }}
+</div>
+    
 
-
-
-{{ form_start(formFavo) }}
-
-    <div style="color:green;">
-        {{ form_row(formFavo.submit) }} 
-        {% if favorite %}
-            Cette recette est déja dans vos favoris! Cliquez pour annuler.
-        {% endif %}
-    </div>
-{{ form_end(formFavo) }}
-{% if not comment %}
-    {{ form_start(formComment) }}
-    {{ form_row(formComment.Content) }} 
-    {{ form_row(formComment.rate) }} 
-    {{ form_row(formComment.submit) }} 
-    {{ form_end(formComment)}}
-{% endif %}
-{% if app.user.email == recipe.user.email %}
-    {{ include('recipe/_delete_form.html.twig') }}
-{% endif %}
-
-<!-- Formulaire pour modifier le nombre de personnes -->
-<form id="person-form">
-    <label for="person-count">Nombre de personnes :</label>
-    <input type="number" id="person-count" min="1" value="2">
-    <button type="submit">Mettre à jour</button>
-</form>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Ingrédient</th>
-            <th>Quantité</th>
-        </tr>
-    </thead>
-    <tbody id="ingredient-list">
-        {% for ingredient in ingredients %}
-            <tr>
-                <td>{{ ingredient.food.name }}</td>
-                <td>{{ ingredient.quantity }} {{ ingredient.food.unit }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Utilisateur</th>
-            <th>Note</th>
-            <th>Commentaire</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for comment in comments %}
-            <tr>
-                <td>{{ comment.user.username }}</td>
-                <td>{{ comment.rate }}/5</td>
-                <td>{{ comment.content }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    
 
 
 

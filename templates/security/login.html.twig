@@ -1,32 +1,49 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Connectez-vous!{% endblock %}
 
 {% block body %}
-    <form method="post">
-        {% if error %}
-            {# <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div> #}
-            <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
-
-        {% if app.user %}
-            <div class="mb-3">
-                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+    <div class="body">
+        <div class="container mt-5">
+            <div class="card custom-card bg-white rounded p-4 border border-primary border-2">
+            <div class="row m-2 p-2">
+                <div class="col-6">
+                    <h1 class="card-title">Connexion</h1>
+                </div>
+                <div class="col-2"></div>
+                <div class="col-4">
+                    <a href="{{ path('app_register') }}" class="btn btn-outline-success rounded">Créer un nouvel utilisateur</a>
+                </div>
             </div>
-        {% endif %}
-
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-        <label for="username">Email</label>
-        <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
-        <label for="password">Password</label>
-        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
-
-        <input type="hidden" name="_csrf_token"
-               value="{{ csrf_token('authenticate') }}">
-
-        <button class="btn btn-lg btn-primary" type="submit">
-            Sign in
-        </button>
-    </form>
-    <a href="{{ path('app_register') }}" class="btn btn-primary">Créer un nouvel utilisateur</a>
+            
+                
+                <div class="card-body">
+                    <form method="post" class="bg-form form-control custom-form-control-login rounded border border-primary">
+                        {% if error %}
+                            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                        {% endif %}
+                        <div class="row m-2 p-2">
+                            <label for="username"><i class="bi bi-envelope"></i> Email</label>
+                            <input class="form-control custom-form-control" type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
+                        </div>
+                        <div class="row m-2 p-2">
+                            <label for="password"><i class="bi bi-lock"></i> Mot de passe</label>
+                            <input class="form-control custom-form-control" type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+                        </div>
+                        <input type="hidden" name="_csrf_token"
+                            value="{{ csrf_token('authenticate') }}">
+                            <div class="row m-2">
+                                <div class="col">
+                                    <button class="btn btn-outline-primary rounded" type="submit">
+                                        Se connecter 
+                                    </button>
+                                </div>
+                            </div>
+                      
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

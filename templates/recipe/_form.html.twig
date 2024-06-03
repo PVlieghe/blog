@@ -36,12 +36,15 @@ label {
             <div class= "col-6 bg-form col-auto border border-primary border-1 p-2  rounded">
                 <div id="steps" data-prototype="{{ form_row(form.steps.vars.prototype)|e('html_attr') }}">
                     <center><div class="mb-4 align-items-center">{{ form_label(form.steps)}}</div></center>
-                    <span></span>
+                    <span>
+                        {{ form_widget(form.steps)}}
+                    </span>
                 </div>
             </div>
             <div class="col-5  bg-form col-auto border border-primary border-1 p-2  rounded">
                 <div id="ingredients" data-prototype="{{ form_row(form.ingredients.vars.prototype)|e('html_attr') }}">
                     <center><div class="mb-3 align-items-center">{{ form_label(form.ingredients)}}</div></center>
+                    {{ form_widget(form.ingredients)}}
                     <span></span>
                 </div>
             </div>
@@ -73,26 +76,33 @@ label {
             boutonAjout.type = "button";
             let nouveauBouton = span.append(boutonAjout);
 
-            // Récupérez tous les inputs déjà présents
-            let inputs = collection.querySelectorAll("input");
-            inputs.forEach(function(input, index) {
-                // Créez un bouton de suppression pour chaque input
-                let boutonSuppr = document.createElement("button");
-                boutonSuppr.type = "button";
-                boutonSuppr.innerText = "Supprimer cette étape";
-                boutonSuppr.id = "delete-step-" + index;
-                boutonSuppr.className = "btn btn-warning";
-            
-                // Ajoutez l'écouteur d'événements pour supprimer l'étape
-                boutonSuppr.addEventListener("click", function(){
-                    this.parentElement.remove();
+                let divs = collection.querySelectorAll("div[id^='recipe_steps_']");
+                divs.forEach(function(div, index) {
+                    let divSuppr = document.createElement("div");
+
+                    let rowDiv = div.parentNode;;
+                    rowDiv.className = "row";
+                    divSuppr.className = "col-1 centered";
+
+                    let boutonSuppr = document.createElement("button");
+                    boutonSuppr.type = "button";
+                    boutonSuppr.id = "delete-step-" + index;
+                    boutonSuppr.className = "btn custom-btn-outline-danger bouton-suppr-form";
+                    
+                    let icon = document.createElement("i");
+                    icon.className = "bi bi-trash icon-size";
+                    
+                    boutonSuppr.appendChild(icon);
+                    divSuppr.appendChild(boutonSuppr);
+                    div.appendChild(divSuppr);
+
+                    // Ajoutez l'écouteur d'événements pour supprimer l'étape
+                    boutonSuppr.addEventListener("click", function(){
+                        div.remove();
+                    });
                 });
 
-            // Ajoutez le bouton de suppression à côté de l'input
-            input.parentNode.appendChild(boutonSuppr);
-            });
-
-            collection.dataset.index = collection.querySelectorAll("input").length;
+            collection.dataset.index = collection.querySelectorAll("div[id^='recipe_steps_']").length;
 
             boutonAjout.addEventListener("click", function(){
                 addButton(collection, nouveauBouton);
@@ -114,22 +124,32 @@ label {
 
 
             // Récupérez tous les inputs déjà présents
-            let ingInputs = ingCollection.querySelectorAll("input");
-            ingInputs.forEach(function(ingInput, ingIndex) {
-                // Créez un bouton de suppression pour chaque input
-                let ingBoutonSuppr = document.createElement("button");
-                ingBoutonSuppr.type = "button";
-                ingBoutonSuppr.innerText = "Supprimer cet ingrédient";
-                ingBoutonSuppr.id = "delete-ingredient-" + ingIndex;
-                ingBoutonSuppr.className = "btn btn-danger";
-            
+            let ingDivs = ingCollection.querySelectorAll("div[id^='recipe_ingredients_']");
+            ingDivs.forEach(function(div, ingIndex) {
+                let divSuppr = document.createElement("div");
+
+                let rowDiv = div.parentNode;;
+                rowDiv.className = "row";
+                divSuppr.className = "col-1 centered";
+
+                let boutonSuppr = document.createElement("button");
+                boutonSuppr.type = "button";
+                boutonSuppr.id = "delete-ingredient-" + ingIndex;
+                boutonSuppr.className = "btn custom-btn-outline-danger bouton-suppr-form";
+                
+                let icon = document.createElement("i");
+                icon.className = "bi bi-trash icon-size";
+                
+                boutonSuppr.appendChild(icon);
+                divSuppr.appendChild(boutonSuppr);
+                div.appendChild(divSuppr);
+
                 // Ajoutez l'écouteur d'événements pour supprimer l'étape
-                ingBoutonSuppr.addEventListener("click", function(){
-                    this.parentElement.remove();
+                boutonSuppr.addEventListener("click", function(){
+                    div.remove();
                 });
 
-            // Ajoutez le bouton de suppression à côté de l'input
-            ingInput.parentNode.appendChild(ingBoutonSuppr);
+
             });
 
             ingCollection.dataset.index = ingCollection.querySelectorAll("input").length;

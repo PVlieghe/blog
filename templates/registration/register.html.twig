@@ -3,16 +3,37 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-    <h1>Register</h1>
+<div class="body">
+    <div class="container mt-5">
+        <div class="card custom-card bg-white rounded p-4 border border-primary border-2">
+            <div class="row m-2 p-2">
+                <div class="col-6">
+                    <h1 class="card-title"><i class="bi bi-person-add"></i>Nouvel utilisateur</h1>
+                </div>
+                <div class="col-1"></div>
+                <div class="col-5">
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-danger rounded">Retour à la page de connexion</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="bg-form form-control custom-form-control-login rounded border border-primary">
+                    {{ form_errors(registrationForm) }}
 
-    {{ form_errors(registrationForm) }}
+                    {{ form_start(registrationForm) }}
+                        {{ form_row(registrationForm.username) }}
+                        {{ form_row(registrationForm.email) }}
+                        {{ form_row(registrationForm.plainPassword, {
+                            label: 'Password'
+                        }) }}
+                        <button type="submit" class="btn btn-outline-primary rounded p-1 m-2">
+                            <i class="bi bi-person-add"></i>
+                            Valider
+                        </button>
+                    {{ form_end(registrationForm) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.username) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
 {% endblock %}

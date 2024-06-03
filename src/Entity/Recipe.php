@@ -5,12 +5,14 @@ namespace App\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+use App\Validator\UniqueStepNumber;
 use App\Repository\RecipeRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RecipeRepository::class)]
+#[UniqueStepNumber]
 class Recipe
 {
     #[ORM\Id]
@@ -37,7 +39,7 @@ class Recipe
     private Collection $favorites;
 
     #[ORM\OneToMany(targetEntity: Step::class, mappedBy: 'Recipe', orphanRemoval: true, cascade:['persist', 'remove'] )]
-
+    #[Assert\Valid]
     private Collection $steps;
 
     #[ORM\OneToMany(targetEntity: Ingredient::class, mappedBy: 'Recipe', orphanRemoval: true, cascade:['persist', 'remove'])]

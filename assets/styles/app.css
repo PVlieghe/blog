@@ -181,3 +181,13 @@ body {
 }
 
 
+#rowPic{
+    height:calc(100% -2rem);
+}
+
+#btnGroup, i{
+    font-size: 1.5em;
+}
+#btnGroup{
+    display:flex
+}
