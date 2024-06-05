@@ -3,10 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
-use App\Repository\RecipeRepository;
 use App\Repository\UserRepository;
+use App\Repository\RecipeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -39,9 +40,15 @@ class CommentController extends AbstractController
 
         $entityManager->remove($comment);
         $entityManager->flush();
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->redirectToRoute('app_admin_dashboard', [], Response::HTTP_SEE_OTHER);
+        }else{
+            return $this->redirectToRoute('app_recipe_show', [
+                 'id' => $recipeId
+            ], Response::HTTP_SEE_OTHER);
+        }
         
-        return $this -> redirectToRoute('app_recipe_show',[
-            'id' => $recipeId
-        ]);
+;
     }
 }

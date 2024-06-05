@@ -32,6 +32,19 @@ class FavoriteRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+       /**
+        * @return Array[] Returns an array of Favorite objects
+        */
+
+    public function findByUser($userId): Array
+    {
+        return $this->createQueryBuilder('f')
+            ->andWhere('f.User = :user')
+            ->setParameter('user', $userId)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Favorite[] Returns an array of Favorite objects
     //     */

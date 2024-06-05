@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User index{% endblock %}
+
+{% block body %}
+<div class="body">
+    <div class="row p-2 m-2">
+        <h1>{{user.email}}</h1>
+        <div class="col-5 p-2 m-2">
+
+            <h3> Recettes </h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nom</th>
+                        <th>Date de création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for recipe in user.recipes %}
+                    <tr>
+                        <td>{{ recipe.id }}</td>
+                        <td>{{ recipe.name }}</td>
+                        <td>{{ recipe.createdAt|date('d-m-Y') }}</td>
+                        <td>
+                            <a class="btn btn-info btn-sm" href="{{ path('app_recipe_show', {'id': recipe.id}) }}"><i class="bi bi-eye"></i></a>
+                            <form action="{{ path('app_recipe_delete', {'id': recipe.id}) }}" method="post" class="d-inline" onsubmit="return confirm('La suppression d'une recette entraînera celle de ses composants, voulez-vous continuer ?');">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5">no records found</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-6 p-2 m-2">
+
+            <h3> Commentaires </h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Id de la recette</th>
+                        <th>Contenu</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for comment in user.comments %}
+                    <tr>
+                        <td>{{ comment.id }}</td>
+                        <td>{{ comment.recipe.id}}</td>
+                        <td>{{ comment.content}}</td>
+                        <td>
+                            <a class="btn btn-info btn-sm" href="{{ path('app_recipe_show', {'id': comment.recipe.id}) }}"><i class="bi bi-eye"></i></a>
+                            <form action="{{ path('app_comment_delete', {'id': comment.id, 'recipeId': comment.recipe.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Etes-vous sur de vouloir supprimer ce commentaire?');">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5">no records found</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

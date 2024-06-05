@@ -39,6 +39,10 @@ body {
     position:fixed
 }
 
+#leftBarShow{
+    height: auto; 
+}
+
 .custom-navbar-height {
     height: 10vh;
     
@@ -182,12 +186,18 @@ body {
 
 
 #rowPic{
-    height:calc(100% -2rem);
+    display:ruby
 }
 
 #btnGroup, i{
     font-size: 1.5em;
+
 }
 #btnGroup{
     display:flex
 }
+
+#picShow{
+    width: 60%;
+    
+   }

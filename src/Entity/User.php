@@ -40,19 +40,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\OneToMany(targetEntity: Recipe::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Recipe::class, mappedBy: 'user', orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $recipes;
 
     #[ORM\Column(length: 50)]
     private ?string $username = null;
 
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'User', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'User', orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $comments;
 
-    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'User', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'User', orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $likes;
 
-    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'User', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'User', orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $favorites;
 
     public function __construct()

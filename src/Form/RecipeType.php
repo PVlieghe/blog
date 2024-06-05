@@ -50,6 +50,7 @@ class RecipeType extends AbstractType
             'attr' => ['class' => 'form-control form-control custom-file-control'],
             'label' => '<i class="bi bi-image"></i> Image png ou jpg (facultatif) ', // Ajoutez l'icône au label
             'label_html' => true, // Indique que le label contient du HTML
+            'data_class' => null,
             'required' => false
         ])
         ->add('valider', SubmitType::class)

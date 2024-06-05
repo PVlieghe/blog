@@ -29,13 +29,13 @@ class Recipe
     #[Assert\Length(min: 3, minMessage: "Le nom de votre recette doit au moins faire 3 caractères.")]
     private ?string $name = null;
 
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'Recipe', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'Recipe', orphanRemoval: true, cascade:['persist', 'remove'])]
     private Collection $comments;
 
-    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'Recipe')]
+    #[ORM\OneToMany(targetEntity: Like::class, mappedBy: 'Recipe', cascade:['persist', 'remove'])]
     private Collection $likes;
 
-    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'Recipe', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'Recipe', orphanRemoval: true, cascade:['persist', 'remove'])]
     private Collection $favorites;
 
     #[ORM\OneToMany(targetEntity: Step::class, mappedBy: 'Recipe', orphanRemoval: true, cascade:['persist', 'remove'] )]

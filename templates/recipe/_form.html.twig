@@ -28,6 +28,9 @@ label {
             </div>
             <div class="col-6 ">
                 {{ form_row(form.pic) }}
+                {% if file_name is not null %}
+                    <p>Le fichier actuel : {{ file_name }}</p>
+                {% endif %}
             </div>
         </div>
 

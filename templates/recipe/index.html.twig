@@ -25,21 +25,25 @@
 
 
         <div class="col-8 p-3 align-items-center ">
+        <h2>{{title}}</h2>
             <div id="recipe-container" class="border border-primary border-2 rounded bg-light">
                 {% for recipe in recipes %}
                     <div id="index" class="row recipe" style="max-height:35vh" data-id="{{ recipe.id }}" data-likes="{{ recipe.likes|length }}" data-rating="{{ averageRatings[recipe.id]|default(0) }}" data-date="{{ recipe.createdAt|date('Y-m-d H:i:s') }}">
                         <div class="col-3 image-container" >
+                        {% if recipe.pic %}
                             <img class="img-fluid" src="{{ asset('pictures/' ~ recipe.pic) }}" alt="Image de la recette">
+                        {% else %}
+                            <img class="img-fluid" src="{{ asset('pictures/none.png') }}" alt="Image de la recette">
+                        {% endif %}
                         </div>
                         <div class="col-4">
-                            <p>Date d'ajout : {{ recipe.createdAt|date('d-m-Y') }}</p>
+                            <p><i class="bi bi-card-text"></i> <strong>{{ recipe.name }}</strong></p>
+                            <p><i class="bi bi-calendar"></i> {{ recipe.createdAt|date('d-m-Y') }}</p>
                             <p>Nombre d'étapes : {{ recipe.steps|length }}</p>
-                            <p>Nom : {{ recipe.name }}</p>
-                            <p>Créateur : {{ recipe.user.username }}</p>
-
+                            <p><i class="bi bi-person"></i> {{ recipe.user.username }}</p>
                         </div>
                         <div class="col-5">
-                            <p>Nombre de like : {{ recipe.likes|length }}</p>
+                            <p><i class="bi bi-hand-thumbs-up"></i> {{ recipe.likes|length }}</p>
                             <p>
                                 {% set averageRating = averageRatings[recipe.id] %}
                                 {% if averageRating is not null %}

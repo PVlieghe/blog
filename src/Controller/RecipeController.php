@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Like;
-use App\Entity\Step;
 use App\Entity\Recipe;
 use App\Form\LikeType;
 use App\Entity\Comment;
@@ -11,27 +9,55 @@ use App\Form\RecipeType;
 use App\Form\SearchType;
 use App\Form\CommentType;
 use App\Form\FavoriteType;
-use App\Repository\LikeRepository;
 use App\Repository\RecipeRepository;
-use App\Repository\CommentRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\IngredientRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\VarDumper\VarDumper;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/recipe')]
-#[IsGranted('ROLE_USER')]
+
 class RecipeController extends AbstractController
 {
     #[Route('/', name: 'app_recipe_index', methods: ['GET', 'POST'])]
-    public function index(RecipeRepository $recipeRepository, IngredientRepository $ingRepo, Request $request): Response
+    public function index(RecipeRepository $recipeRepository, FavoriteRepository $favoriteRepo, Request $request): Response
     {
+
+        $favorite = $request->query->get('favorite');
+        $userRecipes = $request->query->get('user_recipes');
+
+
+        if ($favorite) {
+            // Récupérer uniquement les recettes favorites
+            // Supposons que vous avez une méthode `findFavoritesByUserId()` dans votre `FavoriteRepository`
+            $favorites = $favoriteRepo->findByUser($this->getUser()->getId()); // Remplacez $userId par l'ID de l'utilisateur connecté
+
+            // Ensuite, récupérez les ID des recettes présentes dans les entités favorites
+            $recipeIds = [];
+            foreach ($favorites as $favorite) {
+                $recipeIds[] = $favorite->getRecipe()->getId();
+            }
+
+            // Enfin, utilisez ces ID pour récupérer les entités de recette correspondantes
+            $recipes = $recipeRepository->findById($recipeIds); // Remplacez `findByIds()` par la méthode appropriée dans votre `RecipeRepository`
+            $title = "Voici vos recettes favorites!";
+
+        } elseif ($userRecipes) {
+            // Récupérer les recettes de l'utilisateur
+
+            $recipes = $recipeRepository->findByUser($this->getUser()->getId());
+            $title = "Voici vos recettes!";
+
+        } else {
+            // Récupérer toutes les recettes
+            $recipes = $recipeRepository->findAll();
+            $title = "Voici toutes les recettes!";
+        }
+
         $searchForm = $this->createForm(SearchType::class);
         $searchForm->handleRequest($request);
         
@@ -40,10 +66,10 @@ class RecipeController extends AbstractController
             
             if (empty($foods)) {
                 // Si aucun critère n'est sélectionné, retournez toutes les recettes
-                $recipes = $recipeRepository->findAll();
+                $selectedRecipes = $recipes;
             } else {
                 // Si des critères sont sélectionnés, filtrer les recettes par ces critères
-                $recipes = $recipeRepository->findAll();
+                $selectedRecipes = $recipes;
                 $recipesWithAllIngredients = [];
         
                 // Extraire les identifiants des foods sélectionnés
@@ -51,7 +77,7 @@ class RecipeController extends AbstractController
                     return $food->getId();
                 }, $foods);
         
-                foreach ($recipes as $recipe) {
+                foreach ($selectedRecipes as $recipe) {
                     $ingredients = $recipe->getIngredients()->toArray(); // Convertir la collection en tableau
                     $ingredientFoods = array_map(function($ingredient) {
                         return $ingredient->getFood()->getId();
@@ -63,11 +89,11 @@ class RecipeController extends AbstractController
                     }
                 }
         
-                $recipes = $recipesWithAllIngredients;
+                $selectedRecipes = $recipesWithAllIngredients;
             }
         } else {
             // Si le formulaire n'est pas soumis ou invalide, retourner toutes les recettes
-            $recipes = $recipeRepository->findAll();
+            $selectedRecipes = $recipes;
         }
         $averageRatings = [];
         if($recipes != []){ 
@@ -90,9 +116,10 @@ class RecipeController extends AbstractController
             }
     }
         return $this->render('recipe/index.html.twig', [
-            'recipes' => $recipes,
+            'recipes' => $selectedRecipes,
             'averageRatings' => $averageRatings,
-            'form' => $searchForm
+            'form' => $searchForm,
+            'title' => $title
         ]);
     }
 
@@ -117,8 +144,10 @@ class RecipeController extends AbstractController
                 }
                 
                 $file = $form['pic']->getData();
+                
                 if ($file){
-                    $fileName = uniqid().'.'.$file->guessExtension();
+                    $fileName = pathinfo($form['pic']->getData()->getClientOriginalName(), PATHINFO_FILENAME);
+                    $fileName .= uniqid().'.'.$file->guessExtension();
                     $file->move(
                         $this->getParameter('upload_directory'),
                         $fileName
@@ -134,6 +163,7 @@ class RecipeController extends AbstractController
         return $this->render('recipe/new.html.twig', [
             'recipe' => $recipe,
             'form' => $form,
+            'file_name'=>null
         ]);
     }
 
@@ -241,38 +271,70 @@ class RecipeController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_recipe_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Recipe $recipe, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Recipe $recipe, EntityManagerInterface $entityManager, Security $security): Response
     {
-         // Vérifier si l'utilisateur connecté n'est pas l'administrateur
-         if (!$this->isGranted('ROLE_ADMIN')) {
-            // Vérifier si l'utilisateur connecté est le propriétaire de la recette
-            if ($this->getUser() !== $recipe->getUser()) {
-                // Rediriger l'utilisateur vers une page d'erreur ou une autre page appropriée
-                return $this->redirectToRoute('app_recipe_index', [], Response::HTTP_SEE_OTHER);
-            }
+         
+        // Vérifier si l'utilisateur connecté est le propriétaire de la recette
+        if ($this->getUser() !== $recipe->getUser()) {
+            // Rediriger l'utilisateur vers une page d'erreur ou une autre page appropriée
+            return $this->redirectToRoute('app_recipe_index', [], Response::HTTP_SEE_OTHER);
         }
-        $form = $this->createForm(RecipeType::class, $recipe);
+        
+        $form = $this->createForm(RecipeType::class, $recipe, []);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $user = $security->getUser();
+            if ($user) {
+                $recipe->setUser($user);
+                $stepsData = $form ->getData()->getSteps();
+                $ingredientsData = $form ->getData()->getIngredients();
+                foreach($stepsData as $steps) {
+                    $steps->setRecipe($recipe);
+                }
+                foreach($ingredientsData as $ingredients){
+                    $ingredients ->setRecipe($recipe);
+                }
+                
+                $file = $form['pic']->getData();
+
+                if ($file != null){
+                    $fileName = pathinfo($form['pic']->getData()->getClientOriginalName(), PATHINFO_FILENAME);
+                    $fileName .= uniqid().'.'.$file->guessExtension();
+                    $file->move(
+                        $this->getParameter('upload_directory'),
+                        $fileName
+                    );
+                    $recipe ->setPic($fileName);
+                }
+
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_recipe_index', [], Response::HTTP_SEE_OTHER);
-        }
+            return $this->redirectToRoute('app_recipe_show', ['id' => $recipe->getId()], Response::HTTP_SEE_OTHER);
+        }}
 
         return $this->render('recipe/edit.html.twig', [
             'recipe' => $recipe,
             'form' => $form,
+            'file_name' =>$recipe->getPic()
         ]);
     }
 
-    #[Route('/{id}', name: 'app_recipe_delete')]
-    public function delete(Request $request, Recipe $recipe, EntityManagerInterface $entityManager): Response
-    {
+    #[Route('/delete/{id}', name: 'app_recipe_delete', methods: ['POST'])]
+    public function delete(Request $request, Recipe $recipe, EntityManagerInterface $entityManager, ): Response
+    {   
+        
 
             $entityManager->remove($recipe);
             $entityManager->flush();
-
-        return $this->redirectToRoute('app_recipe_index', [], Response::HTTP_SEE_OTHER);
+            
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->redirectToRoute('app_admin_dashboard', [], Response::HTTP_SEE_OTHER);
+        }else{
+            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+        }
     }
+
+    
 }

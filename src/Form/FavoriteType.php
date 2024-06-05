@@ -16,7 +16,7 @@ class FavoriteType extends AbstractType
         ->add('submit', SubmitType::class, [
             'label' => 'Favori!', // Texte du bouton
             'attr' => [
-                'class' => 'btn btn-outline-favori', // Classe CSS du bouton
+                'class' => 'btn btn-light', // Classe CSS du bouton
             ],
         ]);
     }
