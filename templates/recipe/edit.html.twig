@@ -10,7 +10,7 @@
             <div class="card-body">
                 {{ include('recipe/_form.html.twig', {'button_label': 'Update'}) }}
 
-                <a href="{{ path('app_recipe_index'), {'all_recipes': true} }}" class="btn btn-danger mt-3">Retour à la liste</a>
+                <a href="{{ path('app_recipe_index' , {'all_recipes': true}) }}" class="btn btn-danger mt-3">Retour à la liste</a>
             </div>
         </div>
     </div>
